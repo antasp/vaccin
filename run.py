@@ -61,8 +61,8 @@ def check_times():
 
 def send_email(message: str, config):
 
-    sender = config['email']["user"]
-    receivers = config['receivers']['email'].split(",")
+    sender = config['smtp']["user"]
+    receivers = config['receivers']['list'].split(",")
     body_of_email = message.replace("\n", "<br/>")
 
     msg = MIMEText(body_of_email, "html")
@@ -71,7 +71,7 @@ def send_email(message: str, config):
     msg['To'] = ','.join(receivers)
 
     s = smtplib.SMTP_SSL(host='smtp.gmail.com', port=465)
-    s.login(user=config['email']["user"], password=config['email']["password"])
+    s.login(user=config['smtp']["user"], password=config['smtp']["password"])
     s.sendmail(sender, receivers, msg.as_string())
     s.quit()
 
