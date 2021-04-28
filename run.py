@@ -93,7 +93,7 @@ def run(config):
     def task():
         print("")
         [any_time, output] = check_times()
-        if any_time or True:
+        if any_time:
             send_email(output, config)
 
     while True:
