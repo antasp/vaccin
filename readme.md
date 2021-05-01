@@ -9,7 +9,7 @@ __OBS! Bokning ska endast göras av de som ingår i nuvarande fas!__
 config.ini
 
 ```ini
-[sntp]
+[smtp]
 email=bla@bla.se
 password=abc123
 
