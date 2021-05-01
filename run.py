@@ -35,6 +35,7 @@ def check_times():
 
     with open("data.csv", "a", encoding="utf-8") as log_file:
         if not file_exists:
+            log_file.write('\ufeff')
             log_file.write("Timestamp;")
             for clinic in clinics:
                 log_file.write("{};".format(clinic["name"]))
