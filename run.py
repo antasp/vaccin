@@ -7,7 +7,7 @@ import ssl
 from email.mime.text import MIMEText
 import sys
 import configparser
-
+import os.path
 
 def check_times():
     clinics = [
@@ -31,30 +31,46 @@ def check_times():
 
     output = ""
 
-    for clinic in clinics:
+    file_exists = os.path.isfile("data.csv")
 
-        url = base_url.format(
-            clinic["code"], appointment_type, start_date, stop_date)
+    with open("data.csv", "a") as log_file:
+        if not file_exists:
+            log_file.write("Timestamp;")
+            for clinic in clinics:
+                log_file.write("{};".format(clinic["name"]))
+            log_file.write("\n")
 
-        available = 0
+        log_file.write("{};".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
-        with urllib.request.urlopen(url) as req:
+        for clinic in clinics:
 
-            data = json.loads(req.read())
-            for item in data:
-                date = item["date"]
-                for slot in item["slots"]:
-                    if slot.get("available") == True:
-                        available += 1
-                        output += ("Tid finns {} klockan {}\n".format(
-                            date, slot["when"]))
-        if available > 0:
-            any_time = True
+            url = base_url.format(
+                clinic["code"], appointment_type, start_date, stop_date)
 
-        out_template = "{} tider lediga på {} \n\n"
-        output += (out_template.format(available,
-                   "<a href=\"https://bokning.mittvaccin.se/klinik/{}/bokning\">{}</a>".format(clinic["code"], clinic["name"])))
-        print(out_template.format(available, clinic["name"]))
+            available = 0
+
+            with urllib.request.urlopen(url) as req:
+
+                data = json.loads(req.read())
+                for item in data:
+                    date = item["date"]
+                    for slot in item["slots"]:
+                        if slot.get("available") == True:
+                            available += 1
+                            output += ("Tid finns {} klockan {}\n".format(
+                                date, slot["when"]))
+            if available > 0:
+                any_time = True
+
+            log_file.write("{};".format(available))
+
+
+            out_template = "{} tider lediga på {} \n\n"
+            output += (out_template.format(available,
+                    "<a href=\"https://bokning.mittvaccin.se/klinik/{}/bokning\">{}</a>".format(clinic["code"], clinic["name"])))
+            print(out_template.format(available, clinic["name"]))
+
+        log_file.write("\n")
 
     return [any_time, output]
 
