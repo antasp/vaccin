@@ -33,7 +33,7 @@ def check_times():
 
     file_exists = os.path.isfile("data.csv")
 
-    with open("data.csv", "a") as log_file:
+    with open("data.csv", "a", encoding="utf-8") as log_file:
         if not file_exists:
             log_file.write("Timestamp;")
             for clinic in clinics:
