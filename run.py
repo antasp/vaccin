@@ -11,14 +11,16 @@ import sys
 import configparser
 import os.path
 
+clinics = [
+    {"name": "Hallsberg", "code": 1350, "slots": 0},
+    {"name": "Karlskoga", "code": 1349, "slots": 0},
+    {"name": "Lindesberg", "code": 1348, "slots": 0},
+    {"name": "Örebro Bolundsängen", "code": 1351, "slots": 0},
+    {"name": "Örebro Conventum", "code": 1352, "slots": 0}
+]
+
+
 def check_times():
-    clinics = [
-        {"name": "Hallsberg", "code": 1350},
-        {"name": "Karlskoga", "code": 1349},
-        {"name": "Lindesberg", "code": 1348},
-        {"name": "Örebro Bolundsängen", "code": 1351},
-        {"name": "Örebro Conventum", "code": 1352}
-    ]
 
     appointment_type = 11941  # Vaccin dos 1?
 
@@ -30,6 +32,8 @@ def check_times():
     base_url = "https://booking-api.mittvaccin.se/clinique/{}/appointments/{}/slots/{}-{}"
 
     any_time = False
+
+    any_new_time = False
 
     output = ""
 
@@ -43,9 +47,10 @@ def check_times():
                 log_file.write("{};".format(clinic["name"]))
             log_file.write("\n")
 
-        log_file.write("{};".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        log_file.write("{};".format(
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
-        for clinic in clinics:
+        for index, clinic in enumerate(clinics):
 
             url = base_url.format(
                 clinic["code"], appointment_type, start_date, stop_date)
@@ -65,17 +70,20 @@ def check_times():
             if available > 0:
                 any_time = True
 
-            log_file.write("{};".format(available))
+            if available > clinic["slots"]:
+                any_new_time = True
+            clinics[index]["slots"] = available
 
+            log_file.write("{};".format(available))
 
             out_template = "{} tider lediga på {} \n\n"
             output += (out_template.format(available,
-                    "<a href=\"https://bokning.mittvaccin.se/klinik/{}/bokning\">{}</a>".format(clinic["code"], clinic["name"])))
+                                           "<a href=\"https://bokning.mittvaccin.se/klinik/{}/bokning\">{}</a>".format(clinic["code"], clinic["name"])))
             print(out_template.format(available, clinic["name"]))
 
         log_file.write("\n")
 
-    return [any_time, output]
+    return [any_time, any_new_time, output]
 
 
 def send_email(message: str, config):
@@ -111,8 +119,8 @@ def run(config):
 
     def task():
         print("")
-        [any_time, output] = check_times()
-        if any_time:
+        [any_time, any_new_time, output] = check_times()
+        if any_new_time:
             send_email(output, config)
 
     while True:
