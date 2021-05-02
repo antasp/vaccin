@@ -42,12 +42,12 @@ def check_times():
     with open("data.csv", "a", encoding="utf-8") as log_file:
         if not file_exists:
             log_file.write('\ufeff')
-            log_file.write("Timestamp;")
+            log_file.write("Timestamp")
             for clinic in clinics:
-                log_file.write("{};".format(clinic["name"]))
+                log_file.write(";{}".format(clinic["name"]))
             log_file.write("\n")
 
-        log_file.write("{};".format(
+        log_file.write("\n{}".format(
             datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
         for index, clinic in enumerate(clinics):
@@ -74,14 +74,12 @@ def check_times():
                 any_new_time = True
             clinics[index]["slots"] = available
 
-            log_file.write("{};".format(available))
+            log_file.write(";{}".format(available))
 
             out_template = "{} tider lediga på {} \n\n"
             output += (out_template.format(available,
                                            "<a href=\"https://bokning.mittvaccin.se/klinik/{}/bokning\">{}</a>".format(clinic["code"], clinic["name"])))
             print(out_template.format(available, clinic["name"]))
-
-        log_file.write("\n")
 
     return [any_time, any_new_time, output]
 
