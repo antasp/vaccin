@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import datetime
 import urllib.request
@@ -118,7 +120,8 @@ def run(config):
         pretty_sleep(15 * 60)
 
 
+dirname = os.path.dirname(__file__)
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(os.path.join(dirname, 'config.ini'))
 
 run(config)
