@@ -65,7 +65,7 @@ def check_times():
                     for slot in item["slots"]:
                         if slot.get("available") == True:
                             available += 1
-                            output += ("Tid finns {} klockan {}\n".format(
+                            print("Tid finns {} klockan {}\n".format(
                                 date, slot["when"]))
             if available > 0:
                 any_time = True
