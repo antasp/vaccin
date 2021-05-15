@@ -1,0 +1,117 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js">
+    </script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['controls'], 'language': 'sv' });
+    </script>
+</head>
+
+<body>
+    <div id="dashboard" style="height: 100%;">
+        <div id="chart_div" style="height: 80%;"></div>
+        <div id="control_div" style="height: 20%;"></div>
+    </div>
+    <script language="JavaScript">
+        function drawChart() {
+
+            let csvUrl = "data.csv"
+
+            var queryOptions = {
+                csvColumns: ['string', 'number', 'number', 'number', 'number', 'number'],
+                csvHasHeader: true,
+                sendMethod: 'xhr'
+            }
+            var query = new google.visualization.Query(csvUrl, queryOptions);
+            query.send(handleQueryResponse);
+
+            function handleQueryResponse(response) {
+
+                if (response.isError()) {
+                    alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                    return;
+                }
+
+                var data = response.getDataTable();
+
+                data.insertColumn(0, 'datetime', data.getColumnLabel(0));
+                for (var i = 0; i < data.getNumberOfRows(); i++) {
+
+                    data.setValue(i, 0, new Date(data.getValue(i, 1)));
+                }
+                data.removeColumn(1);
+
+                var control = new google.visualization.ControlWrapper({
+                    controlType: 'ChartRangeFilter',
+                    containerId: 'control_div',
+                    options: {
+                        filterColumnIndex: 0,
+                        ui: {
+                            chartOptions: {
+                                height: 50,
+                                width: '100%',
+                                chartArea: {
+                                    width: '80%'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                var chart = new google.visualization.ChartWrapper({
+                    chartType: 'ScatterChart',
+                    containerId: 'chart_div',
+                    options: {
+                        width: '100%',
+                        chartArea: {
+                            width: '80%'
+                        },
+                        'legend': 'bottom',
+                        'title': 'Lediga tider vaccination Covid-19'
+                    }
+                });
+
+                function setOptions() {
+                    var firstDate;
+                    var lastDate;
+                    var v = control.getState();
+
+                    if (v.range) {
+                        firstDate = new Date(v.range.start.getTime() + 1);
+                        lastDate = new Date(v.range.end.getTime() - 1);
+                        data.setValue(v.range.start.getMonth(), 0, firstDate);
+                        data.setValue(v.range.end.getMonth(), 0, lastDate);
+                    } else {
+                        firstDate = data.getValue(0, 0);
+                        lastDate = data.getValue(data.getNumberOfRows() - 1, 0);
+                    }
+
+                    var ticks = [];
+                    for (var i = firstDate.getMonth(); i <= lastDate.getMonth(); i++) {
+                        ticks.push(data.getValue(i, 0));
+                    }
+
+                    chart.setOption('hAxis.viewWindow.min', firstDate);
+                    chart.setOption('hAxis.viewWindow.max', lastDate);
+                    if (dash) {
+                        chart.draw();
+                    }
+                }
+
+                setOptions();
+                google.visualization.events.addListener(control, 'statechange', setOptions);
+
+                var dash = new google.visualization.Dashboard(document.getElementById('dashboard'));
+                dash.bind([control], [chart]);
+                dash.draw(data);
+
+            }
+
+        }
+        google.charts.setOnLoadCallback(drawChart);
+
+    </script>
+</body>
+
+</html>
