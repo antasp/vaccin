@@ -44,7 +44,7 @@ def check_times():
             log_file.write('\ufeff')
             log_file.write("Timestamp")
             for clinic in clinics:
-                log_file.write(";{}".format(clinic["name"]))
+                log_file.write(",{}".format(clinic["name"]))
             log_file.write("\n")
 
         log_file.write("\n{}".format(
@@ -74,7 +74,7 @@ def check_times():
                 any_new_time = True
             clinics[index]["slots"] = available
 
-            log_file.write(";{}".format(available))
+            log_file.write(",{}".format(available))
 
             out_template = "{} tider lediga på {} \n\n"
             output += (out_template.format(available,
