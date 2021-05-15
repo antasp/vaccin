@@ -16,3 +16,6 @@ password=abc123
 [receivers]
 list=kalle@bla.se,pelle@bla.se
 ```
+## Historisk data
+
+Loggning till data.csv görs vid varje pollning. Visualisering av denna data finns [här](https://antasp.github.io/vaccin/).
