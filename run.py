@@ -27,7 +27,7 @@ def check_times():
     today = datetime.date.today()
 
     start_date = today.strftime("%y%m%d")
-    stop_date = (today + datetime.timedelta(weeks=1)).strftime("%y%m%d")
+    stop_date = (today + datetime.timedelta(weeks=2)).strftime("%y%m%d")
 
     base_url = "https://booking-api.mittvaccin.se/clinique/{}/appointments/{}/slots/{}-{}"
 
